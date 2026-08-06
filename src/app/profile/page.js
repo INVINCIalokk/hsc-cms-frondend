@@ -6,6 +6,14 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectItem,
+  SelectContent,
+} from "@/components/ui/select";
+import {
   Card,
   CardHeader,
   CardTitle,
@@ -29,6 +37,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
+  GraduationCap,
+  Layers,
 } from "lucide-react";
 import api from "@/lib/apiClient";
 
@@ -46,12 +56,20 @@ export default function ProfilePage() {
     address: "",
   });
 
+  // Board & Standard Cascading State
+  const [boards, setBoards] = useState([]);
+  const [standards, setStandards] = useState([]);
+  const [selectedBoard, setSelectedBoard] = useState("");
+  const [selectedStandard, setSelectedStandard] = useState("");
+  const [loadingBoards, setLoadingBoards] = useState(false);
+  const [loadingStandards, setLoadingStandards] = useState(false);
+
   // Feedback states
   const [isSaving, setIsSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Populate form with user data when user is loaded or changed
+  // Populate form data & selection IDs when user object is loaded
   useEffect(() => {
     if (user) {
       setFormData({
@@ -60,8 +78,70 @@ export default function ProfilePage() {
         mobile_number: user.mobile_number || "",
         address: user.address || "",
       });
+
+      const bId = user.board?.id
+        ? user.board.id.toString()
+        : user.board?.data?.id
+        ? user.board.data.id.toString()
+        : "";
+      const sId = user.standard?.id
+        ? user.standard.id.toString()
+        : user.standard?.data?.id
+        ? user.standard.data.id.toString()
+        : "";
+
+      setSelectedBoard(bId);
+      setSelectedStandard(sId);
     }
   }, [user]);
+
+  // Fetch initial boards list when entering edit mode
+  useEffect(() => {
+    if (isEditing) {
+      fetchBoards();
+    }
+  }, [isEditing]);
+
+  const fetchBoards = async () => {
+    setLoadingBoards(true);
+    try {
+      const res = await api.get("/api/boards?sort=Name:asc");
+      setBoards(res.data?.data || []);
+    } catch (err) {
+      console.error("Error fetching boards:", err);
+    } finally {
+      setLoadingBoards(false);
+    }
+  };
+
+  // Fetch standards whenever selectedBoard changes in edit mode
+  useEffect(() => {
+    if (isEditing && selectedBoard) {
+      fetchStandardsForBoard(selectedBoard);
+    } else if (isEditing && !selectedBoard) {
+      setStandards([]);
+    }
+  }, [selectedBoard, isEditing]);
+
+  const fetchStandardsForBoard = async (boardId) => {
+    setLoadingStandards(true);
+    try {
+      const res = await api.get(
+        `/api/standards?filters[board][id][$eq]=${boardId}&sort=Name:asc`
+      );
+      setStandards(res.data?.data || []);
+    } catch (err) {
+      console.error("Error fetching standards:", err);
+    } finally {
+      setLoadingStandards(false);
+    }
+  };
+
+  const handleBoardChange = (boardId) => {
+    setSelectedBoard(boardId);
+    setSelectedStandard(""); // Sequence rule: resetting standard when board changes
+    setStandards([]);
+  };
 
   const handleLogin = () => {
     window.location.href = process.env.NEXT_PUBLIC_STRAPI_URL
@@ -95,13 +175,16 @@ export default function ProfilePage() {
     setErrorMsg("");
 
     try {
-      const targetEndpoint = `/api/users/${user.id}`;
+      // Append ?populate=* so Strapi returns fully populated board & standard relations
+      const targetEndpoint = `/api/users/${user.id}?populate=*`;
 
       const payload = {
         username: formData.username,
         age: formData.age !== "" ? Number(formData.age) : null,
         mobile_number: formData.mobile_number,
         address: formData.address,
+        board: selectedBoard ? Number(selectedBoard) : null,
+        standard: selectedStandard ? Number(selectedStandard) : null,
       };
 
       const res = await api.put(targetEndpoint, payload);
@@ -123,7 +206,7 @@ export default function ProfilePage() {
     }
   };
 
-  // If user is not logged in, render the login CTA card safely
+  // If user is not logged in, render login CTA card safely
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] w-full max-w-2xl mx-auto px-4 py-8 animate-in fade-in duration-300">
@@ -156,8 +239,19 @@ export default function ProfilePage() {
     );
   }
 
-  // Safe check for missing profile fields
-  const hasIncompleteFields = !user.age || !user.mobile_number || !user.address;
+  // Safe check for missing profile fields (including academic board & standard)
+  const hasIncompleteFields =
+    !user.age ||
+    !user.mobile_number ||
+    !user.address ||
+    !user.board ||
+    !user.standard;
+
+  // Extract board & standard names for display
+  const boardName =
+    user.board?.Name || user.board?.attributes?.Name || null;
+  const standardName =
+    user.standard?.Name || user.standard?.attributes?.Name || null;
 
   return (
     <div className="flex flex-col w-full max-w-4xl mx-auto px-4 py-6 animate-in fade-in duration-300">
@@ -195,7 +289,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3">
             <AlertCircle className="h-5 w-5 shrink-0 text-primary" />
             <p className="text-sm font-medium">
-              Your profile is missing details (age, Mobile Number, or Address). Complete your information below!
+              Your profile is missing details (Board, Standard, Age, Mobile, or Address). Complete your information below!
             </p>
           </div>
           <Button
@@ -262,12 +356,76 @@ export default function ProfilePage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="flex items-center justify-between border-b border-border/40 pb-3">
                 <h2 className="text-lg font-semibold text-foreground tracking-tight">
-                  Edit Personal Information
+                  Edit Academic & Personal Information
                 </h2>
-                <span className="text-xs text-muted-foreground">Fields marked are editable</span>
+                <span className="text-xs text-muted-foreground">Select your academic details below</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 1. Board Dropdown (Shadcn Select) */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                    <span>Educational Board</span>
+                  </label>
+                  <Select
+                    value={selectedBoard}
+                    onValueChange={(value) => handleBoardChange(value)}
+                    disabled={loadingBoards || boards.length === 0}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select your board">
+                        {boards.find((item) => item.id.toString() === selectedBoard)?.Name ||
+                          (boardName || (boards.length === 0 ? "Loading boards..." : "Select your board"))}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {boards.map((item) => (
+                          <SelectItem key={item.id} value={item.id.toString()}>
+                            {item.Name || item.attributes?.Name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* 2. Standard Dropdown (Shadcn Select - Cascaded from Board) */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Layers className="h-4 w-4 text-muted-foreground" />
+                    <span>Standard / Class</span>
+                  </label>
+                  <Select
+                    value={selectedStandard}
+                    onValueChange={(value) => setSelectedStandard(value)}
+                    disabled={!selectedBoard || loadingStandards || standards.length === 0}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select your standard">
+                        {standards.find((item) => item.id.toString() === selectedStandard)?.Name ||
+                          (!selectedBoard
+                            ? "Select a board first"
+                            : loadingStandards
+                            ? "Loading standards..."
+                            : standards.length === 0
+                            ? "No standards found for this board"
+                            : standardName || "Select your standard")}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {standards.map((item) => (
+                          <SelectItem key={item.id} value={item.id.toString()}>
+                            {item.Name || item.attributes?.Name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Username */}
                 <div className="space-y-2">
                   <label
@@ -302,7 +460,7 @@ export default function ProfilePage() {
                   />
                 </div>
 
-                {/* age */}
+                {/* Age */}
                 <div className="space-y-2">
                   <label
                     htmlFor="age"
@@ -398,10 +556,48 @@ export default function ProfilePage() {
             /* READ-ONLY DISPLAY VIEW */
             <div className="space-y-6">
               <h2 className="text-lg font-semibold text-foreground tracking-tight border-b border-border/40 pb-2">
-                Account Overview
+                Account & Academic Overview
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Educational Board Card */}
+                <div className="flex items-center gap-3.5 p-4 rounded-lg bg-secondary/30 border border-border/50">
+                  <div className="p-2.5 rounded-md bg-background text-primary shadow-xs">
+                    <GraduationCap className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-0.5 overflow-hidden">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Educational Board
+                    </p>
+                    <p className="text-base font-semibold text-foreground truncate">
+                      {boardName || (
+                        <span className="text-muted-foreground italic text-sm">
+                          Not selected
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Standard / Class Card */}
+                <div className="flex items-center gap-3.5 p-4 rounded-lg bg-secondary/30 border border-border/50">
+                  <div className="p-2.5 rounded-md bg-background text-primary shadow-xs">
+                    <Layers className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-0.5 overflow-hidden">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Standard / Class
+                    </p>
+                    <p className="text-base font-semibold text-foreground truncate">
+                      {standardName || (
+                        <span className="text-muted-foreground italic text-sm">
+                          Not selected
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+
                 {/* Username */}
                 <div className="flex items-center gap-3.5 p-4 rounded-lg bg-secondary/30 border border-border/50">
                   <div className="p-2.5 rounded-md bg-background text-primary shadow-xs">
@@ -432,7 +628,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* age */}
+                {/* Age */}
                 <div className="flex items-center gap-3.5 p-4 rounded-lg bg-secondary/30 border border-border/50">
                   <div className="p-2.5 rounded-md bg-background text-primary shadow-xs">
                     <Calendar className="h-5 w-5" />
