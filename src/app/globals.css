@@ -136,15 +136,25 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   body {
     @apply bg-background text-foreground;
+    overscroll-behavior-y: contain;
+    -webkit-font-smoothing: antialiased;
   }
   html {
     @apply font-sans;
+    /* Respect device notched safe area insets */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
-
-
+  
+  button, a, [role="button"] {
+    user-select: none;
+    -webkit-user-select: none;
+  }
 }
 
 /* Custom sleek scrollbar styling */

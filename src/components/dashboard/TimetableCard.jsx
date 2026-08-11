@@ -180,7 +180,7 @@ export default function TimetableCard() {
   };
 
   return (
-    <Card className="overflow-hidden border-border bg-card shadow-xs flex flex-col justify-between h-full">
+    <Card className="overflow-hidden border-border bg-card shadow-xs flex flex-col h-full">
       {/* Header */}
       <CardHeader className="p-4 border-b border-border/50 pb-2">
         <div className="flex items-center justify-between">

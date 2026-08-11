@@ -1,0 +1,65 @@
+export const dynamic = 'force-static';
+
+export default function manifest() {
+  return {
+    name: 'GyanLab - HSC CMS & Study Portal',
+    short_name: 'GyanLab',
+    description: 'Interactive learning, textbook solutions, revision decks, and study resources.',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#0f0728',
+    theme_color: '#6d28d9',
+    orientation: 'portrait-primary',
+    scope: '/',
+    categories: ['education', 'productivity'],
+    icons: [
+      {
+        src: '/icons/icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/maskable-icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
+      {
+        src: '/icon.svg',
+        sizes: 'any',
+        type: 'image/svg+xml',
+        purpose: 'any',
+      },
+    ],
+    shortcuts: [
+      {
+        name: 'Dashboard',
+        short_name: 'Dashboard',
+        description: 'View your learning statistics and timetable',
+        url: '/dashboard',
+        icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192' }],
+      },
+      {
+        name: 'Textbook Solutions',
+        short_name: 'Solutions',
+        description: 'Access chapter textbook solutions',
+        url: '/textbook-solution',
+        icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192' }],
+      },
+      {
+        name: 'Revision Deck',
+        short_name: 'Revision',
+        description: 'Quick flashcards and practice decks',
+        url: '/revision-deck',
+        icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192' }],
+      },
+    ],
+  };
+}
