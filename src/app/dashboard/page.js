@@ -4,6 +4,12 @@ import React, { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
+// Modular Dashboard Sub-components
+import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
+import LeaderboardCard from "@/components/dashboard/LeaderboardCard";
+import TimetableCard from "@/components/dashboard/TimetableCard";
+import QuickLinksSection from "@/components/dashboard/QuickLinksSection";
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -23,13 +29,18 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] w-full max-w-7xl mx-auto px-4 py-8 animate-in fade-in duration-300">
-      <div className="text-center space-y-3">
-        <h1 className="text-3xl font-extrabold tracking-tight">Dashboard</h1>
-        <p className="text-base text-muted-foreground">
-          Welcome back, <strong className="text-foreground">{user.username || "Student"}</strong>!
-        </p>
+    <div className="flex flex-col w-full max-w-7xl mb-4 animate-in fade-in duration-300">
+      {/* Welcome Banner */}
+      <WelcomeBanner />
+
+      {/* Grid Row: Leaderboard & Minimal 2-Tab Timetable */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+        <LeaderboardCard user={user} />
+        <TimetableCard />
       </div>
+
+      {/* Quick Access Shortcuts Section */}
+      <QuickLinksSection />
     </div>
   );
 }

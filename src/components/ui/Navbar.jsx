@@ -5,13 +5,13 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { LogOutIcon, User, ChevronDown, Menu, X, LayoutDashboard, BookOpen, BookOpenText } from 'lucide-react'
+import { LogOutIcon, User, ChevronDown, Menu, X, LayoutDashboard, BookOpen, BookOpenText, Layers } from 'lucide-react'
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  
+
   const menuRef = useRef(null);
 
   const handleLogin = () => {
@@ -43,7 +43,7 @@ export const Navbar = () => {
     <>
       <nav className="sticky top-0 z-40 flex py-4 w-full justify-center">
         <div className="flex flex-row items-center justify-between w-full max-w-7xl rounded-md px-4 py-2.5 bg-secondary/15 shadow-lg shadow-neutral-600/5 backdrop-blur-lg border border-border">
-          
+
           <div className="flex items-center gap-3">
             {/* Hamburger Menu Button - ONLY for Logged-In Users (Small & Large Screens) */}
             {user && (
@@ -77,17 +77,8 @@ export const Navbar = () => {
 
           <div className="flex flex-row gap-4 items-center">
             {/* Top Nav Resources link ONLY for NON-LOGGED-IN Users */}
-            {!user && (
-              <Link
-                href="/resources"
-                className="font-medium text-sm sm:text-base text-foreground/80 hover:text-foreground hover:bg-accent/20 px-3 py-1.5 rounded-md transition-all cursor-pointer"
-              >
-                Resources
-              </Link>
-            )}
 
             <ModeToggle />
-
             {/* Logged-In User Profile Avatar Dropdown */}
             {user ? (
               <div className="relative" ref={menuRef}>
@@ -106,9 +97,8 @@ export const Navbar = () => {
                     height={38}
                   />
                   <ChevronDown
-                    className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
-                      isProfileMenuOpen ? 'rotate-180 text-primary' : ''
-                    }`}
+                    className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180 text-primary' : ''
+                      }`}
                   />
                 </button>
 
@@ -211,7 +201,7 @@ export const Navbar = () => {
                 <Link
                   href="/dashboard"
                   onClick={() => setIsDrawerOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold text-foreground/90 hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer"
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold text-foreground/90 hover:bg-accent/50 hover:text-accent-foreground transition-all cursor-pointer"
                 >
                   <LayoutDashboard className="h-4 w-4 text-primary" />
                   <span>Dashboard</span>
@@ -220,16 +210,25 @@ export const Navbar = () => {
                 <Link
                   href="/textbook-solution"
                   onClick={() => setIsDrawerOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold text-foreground/90 hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer"
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold text-foreground/90 hover:bg-accent/50 hover:text-accent-foreground transition-all cursor-pointer"
                 >
                   <BookOpenText className="h-4 w-4 text-primary" />
                   <span>Textbook Solution</span>
                 </Link>
 
                 <Link
+                  href="/revision-deck"
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold text-foreground/90 hover:bg-accent/50 hover:text-accent-foreground transition-all cursor-pointer"
+                >
+                  <Layers className="h-4 w-4 text-primary" />
+                  <span>Revision Deck</span>
+                </Link>
+
+                <Link
                   href="/resources"
                   onClick={() => setIsDrawerOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold text-foreground/90 hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer"
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold text-foreground/90 hover:bg-accent/50 hover:text-accent-foreground transition-all cursor-pointer"
                 >
                   <BookOpen className="h-4 w-4 text-primary" />
                   <span>Resource</span>
