@@ -26,6 +26,16 @@ export const Navbar = () => {
     )}&background=ffeb3b&color=000`;
   };
 
+  const handleLogout = () => {
+    setIsProfileMenuOpen(false);
+    setIsDrawerOpen(false);
+    logout();
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, document.title, "/");
+      window.location.href = "/";
+    }
+  };
+
   // Close profile dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -129,11 +139,7 @@ export const Navbar = () => {
 
                       <button
                         type="button"
-                        onClick={() => {
-                          setIsProfileMenuOpen(false);
-                          logout();
-                          window.location.href = "/";
-                        }}
+                        onClick={handleLogout}
                         className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive transition-all duration-150 cursor-pointer text-left"
                       >
                         <LogOutIcon className="h-4 w-4" />
@@ -240,11 +246,7 @@ export const Navbar = () => {
             <div className="pt-4 border-t border-border">
               <button
                 type="button"
-                onClick={() => {
-                  setIsDrawerOpen(false);
-                  logout();
-                  window.location.href = "/";
-                }}
+                onClick={handleLogout}
                 className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
               >
                 <LogOutIcon className="h-4 w-4" />

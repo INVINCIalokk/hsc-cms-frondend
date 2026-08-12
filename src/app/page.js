@@ -18,13 +18,20 @@ export default function Home() {
   }, [user, router]);
 
   useEffect(() => {
-    // Safely extract the token from the URL in a static export
-    const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get("access_token");
+    if (typeof window === "undefined") return;
 
-    if (accessToken) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token =
+      urlParams.get("access_token") ||
+      urlParams.get("id_token") ||
+      urlParams.get("code") ||
+      urlParams.get("raw[access_token]") ||
+      urlParams.get("raw[id_token]");
+
+    if (token) {
+      const queryString = urlParams.toString();
       api
-        .get(`/api/auth/google/callback?access_token=${accessToken}`)
+        .get(`/api/auth/google/callback?${queryString}`)
         .then((res) => res.data)
         .then(async (data) => {
           if (data.jwt) {
@@ -34,8 +41,8 @@ export default function Home() {
             // Update global state and local storage
             login(userRes.data, data.jwt);
 
-            // Clean up the URL & redirect to dashboard
-            window.history.replaceState({}, document.title, "/");
+            // Clean up the URL query params & redirect to dashboard
+            window.history.replaceState({}, document.title, window.location.pathname);
             router.push("/dashboard");
           }
         })

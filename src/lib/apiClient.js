@@ -22,15 +22,18 @@ api.interceptors.request.use(
   }
 );
 
-// Response Interceptor (Optional but recommended for handling 401s)
+// Response Interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid - clear storage and redirect
       if (typeof window !== 'undefined') {
         localStorage.removeItem('jwt');
-        window.location.href = '/login';
+        localStorage.removeItem('user');
+        window.dispatchEvent(new Event('auth:unauthorized'));
+        if (window.location.pathname !== '/') {
+          window.location.href = '/';
+        }
       }
     }
     return Promise.reject(error);
