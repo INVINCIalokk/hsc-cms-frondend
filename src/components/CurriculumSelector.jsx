@@ -33,7 +33,9 @@ export default function CurriculumSelector({ prefillFromUser = true }) {
   useEffect(() => {
     const fetchBoards = async () => {
       try {
-        const res = await api.get("/api/boards?sort=Name:asc");
+        const res = await api.get("/api/boards", {
+          params: { sort: "Name:asc" },
+        });
         setBoards(res.data?.data || []);
       } catch (error) {
         console.error("Error fetching boards:", error);
@@ -68,9 +70,12 @@ export default function CurriculumSelector({ prefillFromUser = true }) {
   const fetchStandards = async (boardId, initialStandardId = "") => {
     setLoadingStandards(true);
     try {
-      const res = await api.get(
-        `/api/standards?filters[board][id][$eq]=${boardId}&sort=Name:asc`
-      );
+      const res = await api.get("/api/standards", {
+        params: {
+          filters: { board: { id: { $eq: boardId } } },
+          sort: "Name:asc",
+        },
+      });
       const fetchedStandards = res.data?.data || [];
       setStandards(fetchedStandards);
 
@@ -88,9 +93,12 @@ export default function CurriculumSelector({ prefillFromUser = true }) {
   const fetchSubjects = async (standardId) => {
     setLoadingSubjects(true);
     try {
-      const res = await api.get(
-        `/api/subjects?filters[standard][id][$eq]=${standardId}&sort=Name:asc`
-      );
+      const res = await api.get("/api/subjects", {
+        params: {
+          filters: { standard: { id: { $eq: standardId } } },
+          sort: "Name:asc",
+        },
+      });
       setSubjects(res.data?.data || []);
     } catch (error) {
       console.error("Error fetching subjects:", error);

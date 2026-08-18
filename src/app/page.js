@@ -35,7 +35,8 @@ export default function Home() {
         .then((res) => res.data)
         .then(async (data) => {
           if (data.jwt) {
-            const userRes = await api.get("/api/users/me?populate=*", {
+            const userRes = await api.get("/api/users/me", {
+              params: { populate: ["board", "standard", "batch"] },
               headers: { Authorization: `Bearer ${data.jwt}` },
             });
             // Update global state and local storage

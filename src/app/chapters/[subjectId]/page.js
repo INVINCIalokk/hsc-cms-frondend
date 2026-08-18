@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import qs from "qs";
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
@@ -28,10 +29,16 @@ export default async function ChaptersPage({ params }) {
 
   let chapters = [];
   try {
-    const res = await fetch(
-      `${STRAPI_URL}/api/chapters?filters[subject][id][$eq]=${subjectId}&sort=Chapter_Number:asc`,
-      { cache: 'no-store' }
+    const query = qs.stringify(
+      {
+        filters: { subject: { id: { $eq: subjectId } } },
+        sort: "Chapter_Number:asc",
+      },
+      { encodeValuesOnly: true }
     );
+    const res = await fetch(`${STRAPI_URL}/api/chapters?${query}`, {
+      cache: "no-store",
+    });
     if (res.ok) {
       const data = await res.json();
       chapters = data.data || [];

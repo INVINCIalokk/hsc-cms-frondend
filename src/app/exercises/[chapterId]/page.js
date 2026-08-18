@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import qs from "qs";
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
@@ -28,10 +29,16 @@ export default async function ExercisesPage({ params }) {
 
   let exercises = [];
   try {
-    const res = await fetch(
-      `${STRAPI_URL}/api/exercises?filters[chapter][id][$eq]=${chapterId}&sort=Title:asc`,
-      { cache: 'no-store' }
+    const query = qs.stringify(
+      {
+        filters: { chapter: { id: { $eq: chapterId } } },
+        sort: "Title:asc",
+      },
+      { encodeValuesOnly: true }
     );
+    const res = await fetch(`${STRAPI_URL}/api/exercises?${query}`, {
+      cache: "no-store",
+    });
     if (res.ok) {
       const data = await res.json();
       exercises = data.data || [];

@@ -3,6 +3,35 @@ import { createContext, useState, useEffect, useContext } from "react";
 
 const AuthContext = createContext();
 
+// Helper to strip heavy relational arrays (e.g. exam_results, test attempts, marks) before storing in localStorage
+const sanitizeUser = (userData) => {
+  if (!userData || typeof userData !== "object") return userData;
+  const {
+    exam_results,
+    examResults,
+    exam_result,
+    examResult,
+    test_results,
+    testResults,
+    test_result,
+    testResult,
+    exam_attempts,
+    examAttempts,
+    test_attempts,
+    testAttempts,
+    quiz_results,
+    quizResults,
+    user_answers,
+    userAnswers,
+    submissions,
+    marks,
+    scores,
+    results,
+    ...cleanUser
+  } = userData;
+  return cleanUser;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
@@ -11,7 +40,11 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        const cleanUser = sanitizeUser(parsedUser);
+        setUser(cleanUser);
+        // Overwrite localStorage to clean up any pre-existing heavy exam_results
+        localStorage.setItem("user", JSON.stringify(cleanUser));
       } catch (err) {
         console.error("Failed to parse stored user", err);
       }
@@ -26,16 +59,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData, jwt) => {
-    localStorage.setItem("user", JSON.stringify(userData));
+    const cleanUser = sanitizeUser(userData);
+    localStorage.setItem("user", JSON.stringify(cleanUser));
     localStorage.setItem("jwt", jwt);
-    setUser(userData);
+    setUser(cleanUser);
   };
 
   const updateUser = (updatedData) => {
     setUser((prevUser) => {
       const newUser = { ...prevUser, ...updatedData };
-      localStorage.setItem("user", JSON.stringify(newUser));
-      return newUser;
+      const cleanUser = sanitizeUser(newUser);
+      localStorage.setItem("user", JSON.stringify(cleanUser));
+      return cleanUser;
     });
   };
 

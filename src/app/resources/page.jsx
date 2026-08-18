@@ -13,7 +13,12 @@ const Page = () => {
     const fetchResources = async () => {
       try {
         // Fetch resources and populate relations using wildcard '*'
-        const res = await api.get('/api/resources?populate=*&pagination[pageSize]=100');
+        const res = await api.get('/api/resources', {
+          params: {
+            populate: '*',
+            pagination: { pageSize: 100 },
+          },
+        });
         const fetchedData = res.data?.data || []; 
         
         // Build the nested tree

@@ -1,9 +1,13 @@
 // utils/api.js
 import axios from 'axios';
+import qs from 'qs';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337',
+  paramsSerializer: (params) => qs.stringify(params, { encodeValuesOnly: true }),
 });
+
+export const stringifyQuery = (queryObj) => qs.stringify(queryObj, { encodeValuesOnly: true });
 
 // Request Interceptor
 api.interceptors.request.use(

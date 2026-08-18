@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Trophy, BookOpen, PenTool, Award, Loader2, Flame } from "lucide-react";
+import qs from "qs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -25,8 +26,9 @@ export default function LeaderboardCard() {
 
       setLoading(true);
       try {
+        const query = qs.stringify({ batchId }, { encodeValuesOnly: true });
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'}/api/leaderboard?batchId=${batchId}`
+          `${process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'}/api/leaderboard?${query}`
         );
         const result = await res.json();
         setData(result);

@@ -9,6 +9,8 @@ import {
   User,
   ArrowRight,
   LayoutDashboard,
+  FileText,
+  GraduationCap,
 } from "lucide-react";
 import {
   Card,
@@ -39,6 +41,16 @@ export default function QuickLinksSection() {
       badge: "New",
       color:
         "from-purple-500/10 to-pink-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400",
+    },
+    {
+      title: "Exams & Assessments",
+      description:
+        "Attempt live tests, view scheduled exams, and analyze detailed solutions.",
+      href: "/exams",
+      icon: GraduationCap,
+      badge: "Exams",
+      color:
+        "from-rose-500/10 to-red-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400",
     },
     {
       title: "Resources Directory",
@@ -78,7 +90,7 @@ export default function QuickLinksSection() {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {quickLinks.map((item) => {
           const Icon = item.icon;
           return (

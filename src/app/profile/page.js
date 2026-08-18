@@ -78,7 +78,9 @@ export default function ProfilePage() {
   const fetchBoards = async () => {
     setLoadingBoards(true);
     try {
-      const res = await api.get("/api/boards?sort=Name:asc");
+      const res = await api.get("/api/boards", {
+        params: { sort: "Name:asc" },
+      });
       setBoards(res.data?.data || []);
     } catch (err) {
       console.error("Error fetching boards:", err);
@@ -99,9 +101,12 @@ export default function ProfilePage() {
   const fetchStandardsForBoard = async (boardId) => {
     setLoadingStandards(true);
     try {
-      const res = await api.get(
-        `/api/standards?filters[board][id][$eq]=${boardId}&sort=Name:asc`,
-      );
+      const res = await api.get("/api/standards", {
+        params: {
+          filters: { board: { id: { $eq: boardId } } },
+          sort: "Name:asc",
+        },
+      });
       setStandards(res.data?.data || []);
     } catch (err) {
       console.error("Error fetching standards:", err);
@@ -142,7 +147,7 @@ export default function ProfilePage() {
     setErrorMsg("");
 
     try {
-      const targetEndpoint = `/api/users/${user.id}?populate=*`;
+      const targetEndpoint = `/api/users/${user.id}`;
 
       const payload = {
         username: formData.username,
@@ -153,7 +158,9 @@ export default function ProfilePage() {
         standard: selectedStandard ? Number(selectedStandard) : null,
       };
 
-      const res = await api.put(targetEndpoint, payload);
+      const res = await api.put(targetEndpoint, payload, {
+        params: { populate: ["board", "standard", "batch"] },
+      });
       const updatedUser = res.data;
 
       // Update global context & local storage

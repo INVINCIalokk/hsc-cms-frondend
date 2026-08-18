@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import qs from "qs";
 import StudyRoomClient from "./StudyRoomClient";
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
@@ -29,10 +30,15 @@ export default async function StudyRoomPage({ params }) {
   // Fetch Questions linked specifically to this exercise
   let questions = [];
   try {
-    const res = await fetch(
-      `${STRAPI_URL}/api/questions?filters[exercise][id][$eq]=${exerciseId}`,
-      { cache: 'no-store' }
+    const query = qs.stringify(
+      {
+        filters: { exercise: { id: { $eq: exerciseId } } },
+      },
+      { encodeValuesOnly: true }
     );
+    const res = await fetch(`${STRAPI_URL}/api/questions?${query}`, {
+      cache: "no-store",
+    });
     if (res.ok) {
       const data = await res.json();
       questions = data.data || [];

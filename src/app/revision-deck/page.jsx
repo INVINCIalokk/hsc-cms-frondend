@@ -45,7 +45,9 @@ export default function RevisionDeckPage() {
       setLoadingDecks(true);
       setError(null);
       try {
-        const response = await api.get("/api/revision-decks?populate=*");
+        const response = await api.get("/api/revision-decks", {
+          params: { populate: "*" },
+        });
         // Strapi v4/v5 format: response.data.data
         const fetchedDecks = response.data?.data || [];
         setDecks(fetchedDecks);
@@ -69,7 +71,9 @@ export default function RevisionDeckPage() {
     setActiveCardIndex(0);
 
     try {
-      const response = await api.get(`/api/revision-decks/${docId}?populate=*`);
+      const response = await api.get(`/api/revision-decks/${docId}`, {
+        params: { populate: "*" },
+      });
       const deckDetail = response.data?.data || deck;
       setSelectedDeck(deckDetail);
       // Extract cards array from detail response

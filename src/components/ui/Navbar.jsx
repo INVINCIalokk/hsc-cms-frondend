@@ -5,7 +5,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { LogOutIcon, User, ChevronDown, Menu, X, LayoutDashboard, BookOpen, BookOpenText, Layers } from 'lucide-react'
+import { LogOutIcon, User, ChevronDown, Menu, X, LayoutDashboard, BookOpen, BookOpenText, Layers, FileText, GraduationCap } from 'lucide-react'
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -229,6 +229,15 @@ export const Navbar = () => {
                 >
                   <Layers className="h-4 w-4 text-primary" />
                   <span>Revision Deck</span>
+                </Link>
+
+                <Link
+                  href="/exams"
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold text-foreground/90 hover:bg-accent/50 hover:text-accent-foreground transition-all cursor-pointer"
+                >
+                  <GraduationCap className="h-4 w-4 text-primary" />
+                  <span>Exams</span>
                 </Link>
 
                 <Link
